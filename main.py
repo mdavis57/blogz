@@ -26,8 +26,13 @@ class Blog(db.Model):
 
 @app.route("/blog", methods=["POST","GET"])
 def blog():
-    blogs = Blog.query.all()
-    return render_template('blog.html',title="blogs", blogs=blogs)
+    blog_id = request.args.get('id')
+    if (blog_id):
+        blog = Blog.query.get(blog_id)
+        return render_template('individualblog.html', title="Blog Entry", blog=blog)
+    else:
+        blogs = Blog.query.all()
+        return render_template('blog.html',title="blogs", blogs=blogs, )
 
         
 
@@ -37,6 +42,7 @@ def newpost():
 
         title = request.form['title']
         content = request.form['content']
+        
         error_msg=""
 
         if len(title) <= 0 or len(content) <=0:
@@ -46,20 +52,20 @@ def newpost():
             template = jinja_env.get_template('newpost.html')
             return template.render(error_msg=error_msg)
         else:
-            blog = Blog(title,content)
-            db.session.add(blog)
+            new_blog = Blog(title,content)
+            db.session.add(new_blog)
             db.session.commit()
-            return redirect('/blog')
+            
+            post_page = "/blog?id=" + str(new_blog.id)
+            return redirect(post_page)
+            
     
 
 
     template = jinja_env.get_template('newpost.html')
     return template.render()
         
-@app.route("/individualblog")
-def individual_blog():
-    pass
-           
+
 
 
 if __name__=='__main__':
