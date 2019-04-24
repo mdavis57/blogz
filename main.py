@@ -11,7 +11,7 @@ jinja_env = jinja2.Environment(
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:build-a-blog@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'abc123'
@@ -20,9 +20,19 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
     content = db.Column(db.String(10000))
-    def __init__(self, title, content):
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    def __init__(self, title, content, user):
         self.title = title
         self.content = content
+        self.user = user
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120))
+    password = db.Column(db.String(120))
+    def __init__(self,username,password):
+        self.username = username
+        self.password = password
 
 @app.route("/blog", methods=["POST","GET"])
 def blog():
@@ -42,7 +52,7 @@ def newpost():
 
         title = request.form['title']
         content = request.form['content']
-        
+        owner = request.form['owner']
         error_msg=""
 
         if len(title) <= 0 or len(content) <=0:
@@ -52,7 +62,7 @@ def newpost():
             template = jinja_env.get_template('newpost.html')
             return template.render(error_msg=error_msg)
         else:
-            new_blog = Blog(title,content)
+            new_blog = Blog(title,content,owner)
             db.session.add(new_blog)
             db.session.commit()
             
