@@ -30,6 +30,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120))
     password = db.Column(db.String(120))
+    blogs = db.relationship('Blog', backref='owner')
     def __init__(self,username,password):
         self.username = username
         self.password = password
@@ -74,6 +75,70 @@ def newpost():
 
     template = jinja_env.get_template('newpost.html')
     return template.render()
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        error_msg = ''
+    
+        if not user:
+            error_msg = "User does not exist"
+            
+        if user and user.password == password:
+            session['username'] = username
+            return redirect('/newpost')
+        else:
+            error_msg = "Incorrect username or password"
+            template = jinja_env.get_template('login.html')
+            return template.render(error_msg=error_msg)
+        
+
+            
+
+    return render_template('login.html')
+
+@app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        verify = request.form['verify']
+        error_msg = ''
+        # TODO - validate user's data
+
+        existing_user = User.query.filter_by(username=username).first()
+        
+        if len(username) <3 or len(password) <3 or len(username) <3:
+            error_msg='Username and password must be greater than 3 characters'
+            
+
+        if verify != password:
+            error_msg='Passwords dont match' 
+            
+
+        if existing_user:
+            flash('Username already exists','error')
+            error_msg='User already exists'
+            
+        if not error_msg:
+            new_user = User(username, password)
+            db.session.add(new_user)
+            db.session.commit()
+            session['username'] = username
+            return redirect('/newpost')
+        else:
+            template = jinja_env.get_template('signup.html')
+            return template.render(error_msg=error_msg)
+
+
+
+            
+        
+    return render_template('signup.html')
+
         
 
 
