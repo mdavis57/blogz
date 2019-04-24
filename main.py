@@ -56,8 +56,8 @@ def newpost():
             db.session.add(new_blog)
             db.session.commit()
             
-            post_page = "/blog?id=" + str(new_blog.id)
-            return redirect(post_page)
+            ind_blog_url = "/blog?id=" + str(new_blog.id)
+            return redirect(ind_blog_url)
             
     
 

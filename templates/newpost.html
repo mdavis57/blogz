@@ -3,19 +3,20 @@
     <h1>Add a blog entry</h1>
     <p class="error">{{error_msg}}</p>
         <form action="/newpost", method='post'>
+            <div>
             <label>
                 Title:
                 <input type="text", name='title'/>
             </label>
-
-            <br>
-            <br>
+        </div>
+        <div>
+            
             <label>Content:
                 <textarea rows="4" cols="50" name= 'content'></textarea>
             </label>
-            <br>
-            <br>
+        </div>
             <input type="submit" value="Create Blog"/>
+
         </form>
 
    
