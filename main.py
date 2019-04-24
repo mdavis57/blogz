@@ -21,10 +21,10 @@ class Blog(db.Model):
     title = db.Column(db.String(120))
     content = db.Column(db.String(10000))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    def __init__(self, title, content, user):
+    def __init__(self, title, content, owner):
         self.title = title
         self.content = content
-        self.user = user
+        self.owner = owner
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,11 +49,12 @@ def blog():
 
 @app.route("/newpost", methods=["POST","GET"])
 def newpost():
+
+    owner = User.query.filter_by(username=session['username']).first()
     if request.method == 'POST':
 
         title = request.form['title']
         content = request.form['content']
-        owner = request.form['owner']
         error_msg=""
 
         if len(title) <= 0 or len(content) <=0:
@@ -139,8 +140,17 @@ def signup():
         
     return render_template('signup.html')
 
-        
+@app.route('/logout')
+def logout():
+    del session['username']
+    return redirect('/blog')        
 
+
+@app.before_request
+def require_login():
+    allowed_routes = ['login', 'blog','index','signup']
+    if request.endpoint not in allowed_routes and 'username' not in session:
+        return redirect('/login')
 
 
 if __name__=='__main__':
