@@ -35,15 +35,29 @@ class User(db.Model):
         self.username = username
         self.password = password
 
+@app.route('/',methods=['POST','GET'])
+def index():
+    owners = User.query.all()
+
+    
+    return render_template('index.html',title="owners", owners=owners )
+    
+
+
 @app.route("/blog", methods=["POST","GET"])
 def blog():
     blog_id = request.args.get('id')
+    owner_id = request.args.get('owner')
+    if (owner_id):
+        blogs = Blog.query.filter_by(owner_id=owner_id).all()
+        return render_template("blog.html",blogs=blogs)
     if (blog_id):
         blog = Blog.query.get(blog_id)
         return render_template('individualblog.html', title="Blog Entry", blog=blog)
     else:
         blogs = Blog.query.all()
         return render_template('blog.html',title="blogs", blogs=blogs, )
+
 
         
 
