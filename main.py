@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import jinja2
 import os
 import cgi
+from hashutils import make_pw_hash, check_pw_hash
 
 template_dir = os.path.join(os.path.dirname(__file__),
     'templates')
@@ -29,11 +30,11 @@ class Blog(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120))
-    password = db.Column(db.String(120))
+    pw_hash = db.Column(db.String(120))
     blogs = db.relationship('Blog', backref='owner')
     def __init__(self,username,password):
         self.username = username
-        self.password = password
+        self.pw_hash = make_pw_hash(password)
     def __repr__(self):
         return self.username
 
@@ -104,7 +105,7 @@ def login():
         if not user:
             error_msg = "User does not exist"
             
-        if user and user.password == password:
+        if user and check_pw_hash(password, user.pw_hash):
             session['username'] = username
             return redirect('/newpost')
         else:
