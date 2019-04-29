@@ -34,12 +34,12 @@ class User(db.Model):
     def __init__(self,username,password):
         self.username = username
         self.password = password
+    def __repr__(self):
+        return self.username
 
 @app.route('/',methods=['POST','GET'])
 def index():
     owners = User.query.all()
-
-    
     return render_template('index.html',title="owners", owners=owners )
     
 
@@ -48,15 +48,17 @@ def index():
 def blog():
     blog_id = request.args.get('id')
     owner_id = request.args.get('owner')
+    
     if (owner_id):
         blogs = Blog.query.filter_by(owner_id=owner_id).all()
-        return render_template("blog.html",blogs=blogs)
+        owner = User.query.filter_by(id=owner_id).first()
+        return render_template("userposts.html",blogs=blogs, owner=owner)
     if (blog_id):
         blog = Blog.query.get(blog_id)
         return render_template('individualblog.html', title="Blog Entry", blog=blog)
     else:
         blogs = Blog.query.all()
-        return render_template('blog.html',title="blogs", blogs=blogs, )
+        return render_template('blog.html',title="blogs", blogs=blogs)
 
 
         
