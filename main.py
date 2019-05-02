@@ -58,7 +58,8 @@ def blog():
         blog = Blog.query.get(blog_id)
         return render_template('individualblog.html', title="Blog Entry", blog=blog)
     else:
-        blogs = Blog.query.all()
+        page = request.args.get('page',1,type=int)
+        blogs = Blog.query.paginate(page=page,per_page=5)
         return render_template('blog.html',title="blogs", blogs=blogs)
 
 
@@ -125,8 +126,6 @@ def signup():
         password = request.form['password']
         verify = request.form['verify']
         error_msg = ''
-        # TODO - validate user's data
-
         existing_user = User.query.filter_by(username=username).first()
         
         if len(username) <3 or len(password) <3 or len(username) <3:

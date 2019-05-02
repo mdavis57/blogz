@@ -4,17 +4,25 @@
 <h1>Blogs</h1>
 
 
-    {% for blog in blogs %}
+    {% for blog in blogs.items %}
         
-        <h2>
-            <a href="/blog?id={{ blog.id }}">{{ blog.title }}</a></h2>
-            <h4>{{ blog.content }}</h4>
-            <h6>Written by: <a href="/blog?owner={{ blog.owner_id }}"> {{blog.owner}}</a></h6>
+        <h1>
+            <a href="/blog?id={{ blog.id }}">{{ blog.title }}</a></h1>
+            <h3>{{ blog.content }}</h3>
+            <h4>Written by: <a href="/blog?owner={{ blog.owner_id }}"> {{blog.owner}}</a></h4>
             
         
             
         
     {% endfor %}
+    {% for page_num in blogs.iter_pages(left_edge=1,right_edge=1, left_current=1,right_current=2) %}
+            {% if page_num %}
+                <a href="{{url_for('blog', page=page_num) }}">{{ page_num}}</a>
+            {% else %}
+            ...
+            {% endif %}
+    {% endfor %}
+
 
     
 {% endblock %}
